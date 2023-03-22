@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export interface CommunityState {
+export interface CommunityModalState {
     isOpen: boolean;
 }
 
-const initialState: CommunityState = {
+const initialState: CommunityModalState = {
     isOpen: false,
 };
 
-export const communitySlice = createSlice({
-    name: 'community',
+export const communityModalSlice = createSlice({
+    name: 'communityModal',
     initialState,
     reducers: {
         openCommunityModal: (state) => {
@@ -21,6 +21,6 @@ export const communitySlice = createSlice({
     },
 });
 
-export const { openCommunityModal, closeCommunityModal } = communitySlice.actions;
+export const { openCommunityModal, closeCommunityModal } = communityModalSlice.actions;
 
-export default communitySlice.reducer;
+export default communityModalSlice.reducer;

@@ -6,9 +6,9 @@ import { UserIcon, EyeIcon, EyeSlashIcon  } from '@heroicons/react/20/solid'
 
 import { RootState } from '@/app/store'
 import { useSelector, useDispatch } from 'react-redux'
-import { closeCommunityModal } from '@/features/communitySlice'
+import { closeCommunityModal } from '@/features/communityModalSlice'
 
-import { doc, getDoc, runTransaction, serverTimestamp, setDoc,  } from 'firebase/firestore'
+import { doc, runTransaction, serverTimestamp  } from 'firebase/firestore'
 import { auth, firestore } from '@/firebase/client'
 
 import { useAuthState } from 'react-firebase-hooks/auth'
@@ -26,7 +26,7 @@ function CommunityModal({}: Props) {
 
   const [ user, loading ] = useAuthState(auth); 
 
-  const { isOpen } = useSelector((state: RootState) => state.community); 
+  const { isOpen } = useSelector((state: RootState) => state.communityModal); 
   const dispatch = useDispatch()
   
   const cancelButtonRef = useRef(null)

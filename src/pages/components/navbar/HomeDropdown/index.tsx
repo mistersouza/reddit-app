@@ -5,11 +5,9 @@ import { ChevronDownIcon, HomeIcon } from '@heroicons/react/20/solid'
 import { ArrowRightOnRectangleIcon, CurrencyEuroIcon, MoonIcon, SpeakerWaveIcon, PlusIcon, ArrowTrendingUpIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 
 import { useDispatch } from 'react-redux'
-import { openCommunityModal } from '@/features/communitySlice'
+import { openCommunityModal } from '@/features/communityModalSlice'
 
 import { User as FirebaseUser } from 'firebase/auth'
-
-import { auth } from '../../../../firebase/client'
 
 type Props = {
     user?: FirebaseUser | null
