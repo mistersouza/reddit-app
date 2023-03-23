@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 
-import { DocumentTextIcon, PhotoIcon, LinkIcon, MicrophoneIcon, ListBulletIcon   } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, PhotoIcon, LinkIcon, MicrophoneIcon, ListBulletIcon, ExclamationCircleIcon   } from '@heroicons/react/24/outline'
 // import { DocumentTextIcon, PhotoIcon, LinkIcon, MicrophoneIcon, ListBulletIcon   } from '@heroicons/react/24/solid'
 
 import PostTab from './PostTab'
 import PostInput from './postForm/PostInput'
+import MediaUpload from './postForm/MediaUpload'
+import Title from './postForm/Title'
+import TagButtons from './postForm/TagButtons'
 
 type Props = {}
 
@@ -39,13 +42,31 @@ const tabs: Tab[] = [
 
 function PostForm({}: Props) {
   const [ activeTab, setActiveTab ] = useState(tabs[0]); 
-  const [ loading, setLoading ] = useState(false);
+  // const [ loading, setLoading ] = useState(false);
+  
   const [ form, setForm ] = useState({
     title: '',
     text: '',
   }); 
 
   const [ media, setMedia ] = useState<string>('');
+
+  const handleMediaUpload = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    const file = target.files?.[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = () => {
+        if (reader.result) {
+          setMedia(reader.result as string);
+        }
+      }
+    }
+  }
+
+
 
   const handleFormChange = ({ target }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({
@@ -55,24 +76,58 @@ function PostForm({}: Props) {
   }
 
   const handleCreatePost = () => {
-    console.log('create post')
   }
 
   return (
     <div className='flex flex-col rounded-sm mt-1 bg-white'>
       <div className='flex w-full'>
-        {tabs.map((tab, index) => (
-          <PostTab key={index} tab={tab} setActiveTab={setActiveTab} active={tab === activeTab} />
+        {tabs.map(tab => (
+          <PostTab key={tab.label} tab={tab} setActiveTab={setActiveTab} active={tab === activeTab} />
         ))}
       </div>
-      <div className='flex'>
+      <div className='flex flex-col w-full p-2.5 gap-2'>
+        <Title post={form} handleFormChange={handleFormChange} />
+
         {activeTab.label === 'Post' && (
           <PostInput 
-          post={form} 
-          handleFormChange={handleFormChange} 
-          handleCreatePost={handleCreatePost}
+            post={form} 
+            handleFormChange={handleFormChange} 
+            handleCreatePost={handleCreatePost}
           />
         )}
+        {activeTab.label === 'Images & Video' && (
+          <MediaUpload 
+            media={media}
+            setActiveTab={setActiveTab}
+            setMedia={setMedia}
+            handleMediaUpload={handleMediaUpload}
+          />
+        )}
+
+        <TagButtons />
+        <div className='flex flex-col'>
+          <div className='flex w-full justify-end pt-2'>
+            <button className='btn-outline'>Save Draft</button>
+            <button 
+              className='btn-solid' 
+              type='submit'
+              disabled={!form.title}
+              onClick={handleCreatePost}
+            >Post</button>
+          </div>
+          <p className='pt-1 text-right text-[.6rem] text-red-500'>Please fix the above requirements</p>
+        </div>
+      </div>
+      <div className='w-full p-3 bg-gray-100 leading-5 text-xs'>
+        <div className='flex items-center gap-1'>
+          <input 
+            type='checkbox'
+            checked
+          />
+          <label>Send me post reply notifications</label>
+        </div>
+        <a className='text-blue-600 hover:underline'>Connect accounts to share your post</a>
+        <ExclamationCircleIcon className='inline-block ml-1 w-4 h-4 text-gray-400'/>
       </div>
     </div>
   )
