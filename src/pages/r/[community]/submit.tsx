@@ -1,17 +1,21 @@
-import PageLayout from '@/pages/components/layout/PageLayout'
-import PostForm from '@/pages/components/Post/PostForm'
 import React from 'react'
 
-type Props = {}
+import PageLayout from '@/pages/components/layout/PageLayout'
+import PostForm from '@/pages/components/Post/PostForm'
 
-const Submit = (props: Props) => {
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '@/firebase/client'
+
+const Submit = () => {
+  const [ user ] = useAuthState(auth)
+
   return (
     <PageLayout>
       <>
         <div className='border-b border-white py-3.5'>
           <p>Create a post</p>
         </div>
-        <PostForm />
+        { user && <PostForm user={user} /> }
       </>
       <>
         <div>

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { Timestamp } from 'firebase/firestore';
 
 
-export interface CommunitySnippetState {
+export interface CommunitySnippet {
     communityName: string;
     isModerator: boolean;
     imageUrl?: string;
@@ -16,7 +16,7 @@ export interface CommunityPageState {
     numberOfMembers: number;
     createdAt?: Timestamp;
     imageUrl?: string;
-    communitySnippets: CommunitySnippetState[];
+    communitySnippets: CommunitySnippet[];
 }
 
 

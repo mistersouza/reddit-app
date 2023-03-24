@@ -8,8 +8,16 @@ import PostInput from './postForm/PostInput'
 import MediaUpload from './postForm/MediaUpload'
 import Title from './postForm/Title'
 import TagButtons from './postForm/TagButtons'
+import { Post } from '@/features/postSlice'
+import { User } from 'firebase/auth'
+import { useRouter } from 'next/router'
+import { addDoc, collection, serverTimestamp, updateDoc } from 'firebase/firestore'
+import { firestore, storage } from '@/firebase/client'
+import { getDownloadURL, ref, uploadString } from 'firebase/storage'
 
-type Props = {}
+type Props = {
+  user: User;
+}
 
 export type Tab = {
   label: string;
@@ -40,16 +48,17 @@ const tabs: Tab[] = [
   },
 ]; 
 
-function PostForm({}: Props) {
+function PostForm({ user }: Props) {
   const [ activeTab, setActiveTab ] = useState(tabs[0]); 
   // const [ loading, setLoading ] = useState(false);
-  
+
   const [ form, setForm ] = useState({
     title: '',
     text: '',
   }); 
-
   const [ media, setMedia ] = useState<string>('');
+  
+  const router = useRouter();
 
   const handleMediaUpload = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     const file = target.files?.[0];
@@ -66,8 +75,6 @@ function PostForm({}: Props) {
     }
   }
 
-
-
   const handleFormChange = ({ target }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({
       ...form,
@@ -75,7 +82,38 @@ function PostForm({}: Props) {
     })
   }
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async() => {
+    const { community: communityName } = router.query;
+    const { title, text } = form;
+
+    const newPost: Post = {
+      communityName,
+      authorId: user.uid,
+      authorUsername: user.email?.split('@')[0] || 'Anonymous',
+      title,
+      text,
+      numberOfComments: 0,
+      numberOfUpvotes: 0,
+      createdAt: serverTimestamp(),
+    }
+
+    try {
+      const docRef = await addDoc(collection(firestore, 'posts'), newPost);
+
+      if(media) {
+        const imageRef = ref(storage, `posts/${docRef.id}/image`);
+        await uploadString(imageRef, media, 'data_url'); 
+        
+        const imageUrl = await getDownloadURL(imageRef);
+        await updateDoc(docRef, { imageUrl })
+        
+      }
+
+    } catch (error) {
+      console.log({error});
+    }
+
+    // router.back(); 
   }
 
   return (
@@ -87,10 +125,9 @@ function PostForm({}: Props) {
       </div>
       <div className='flex flex-col w-full p-2.5 gap-2'>
         <Title post={form} handleFormChange={handleFormChange} />
-
         {activeTab.label === 'Post' && (
           <PostInput 
-            post={form} 
+            post={form}
             handleFormChange={handleFormChange} 
             handleCreatePost={handleCreatePost}
           />
@@ -103,20 +140,7 @@ function PostForm({}: Props) {
             handleMediaUpload={handleMediaUpload}
           />
         )}
-
         <TagButtons />
-        <div className='flex flex-col'>
-          <div className='flex w-full justify-end pt-2'>
-            <button className='btn-outline'>Save Draft</button>
-            <button 
-              className='btn-solid' 
-              type='submit'
-              disabled={!form.title}
-              onClick={handleCreatePost}
-            >Post</button>
-          </div>
-          <p className='pt-1 text-right text-[.6rem] text-red-500'>Please fix the above requirements</p>
-        </div>
       </div>
       <div className='w-full p-3 bg-gray-100 leading-5 text-xs'>
         <div className='flex items-center gap-1'>
