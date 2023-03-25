@@ -10,6 +10,7 @@ import NotFound from '@/pages/components/community/NotFound';
 import Header from '@/pages/components/community/Header';
 import PageLayout from '@/pages/components/layout/PageLayout';
 import CreatePost from '@/pages/components/community/CreatePost';
+import Feed from '@/pages/components/Post/Feed';
 
 type Props = {
     communityData: CommunityPageState;
@@ -26,6 +27,7 @@ const CommunityPage = ({ communityData: data }: Props) => {
             <PageLayout>
                 <div>
                     <CreatePost />
+                    <Feed community={data} />
                 </div>
                 <div>Right content</div>
             </PageLayout>

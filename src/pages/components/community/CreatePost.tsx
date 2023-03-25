@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useAuthState } from 'react-firebase-hooks/auth'
 
 import { auth } from '@/firebase/client'
-import { openAuthModal, setAuthView } from '@/features/authSlice'
+import { openAuthModal } from '@/features/authSlice'
 
 import { useDispatch } from 'react-redux'
 

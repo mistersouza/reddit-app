@@ -11,8 +11,9 @@ import { PhotoIcon, BellIcon } from '@heroicons/react/20/solid'
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, firestore } from '@/firebase/client';
 
-import { collection, doc, getDocs, increment, writeBatch } from 'firebase/firestore';
-// import { useFetchCommunitySnippetsQuery } from '@/pages/api/firebase/communitySnippets';
+import { doc, increment, writeBatch } from 'firebase/firestore';
+import { useFetchCommunitySnippetsQuery } from '@/features/api/apiSlice';
+
 
 
 
@@ -29,25 +30,15 @@ const Header = ({ communityData: data }: Props) => {
     
     const dispatch = useDispatch();
 
-    /* const { 
+    const { 
         data: snippets = [],
         isLoading,
         isSuccess,
         isError,
         error        
-    } = useFetchCommunitySnippetsQuery('mOIkpxQ0dRbawAO9fgvX7rSz9pi2') */
+    } = useFetchCommunitySnippetsQuery(user);
 
-    useEffect(() => {
-        const fetchCommunitySnippets = async() => {
-            const communitySnippetRef = collection(firestore, `users/${user?.uid}/communitySnippets`); 
-            const querySnapShot = await getDocs(communitySnippetRef);
-            const communitySnippets = querySnapShot.docs.map(doc => ({...doc.data()}));
-            
-            dispatch(setCommunityPage({ communitySnippets }));
-        }
-        fetchCommunitySnippets()
-    }, [user?.uid, communitySnippets, dispatch])
-
+    dispatch(setCommunityPage({ communitySnippets: snippets }));
 
    const handleJoinCommunity = async (communityData: CommunityPageState) => {
         try {
@@ -90,7 +81,6 @@ const Header = ({ communityData: data }: Props) => {
     }
 
 
-    
     const handleJoinOrLeaveCommunityClick = (info: CommunityPageState) => {
         if (!user) {
             dispatch(openAuthModal('login'));

@@ -14,9 +14,11 @@ export const store = configureStore({
         auth: authReducer,
         communityModal: communityModalReducer,
         communityPage: communityPageReducer,
-        [apiSlice.reducerPath]: apiSlice.reducer,
+        [apiSlice.reducerPath]: apiSlice.reducer
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware),
+    middleware: getDefaultMiddleware => getDefaultMiddleware({
+        serializableCheck: false,
+        }).concat(apiSlice.middleware)
 
 });
 
