@@ -18,7 +18,7 @@ export const apiSlice = createApi({
                     const communitySnippetRef = collection(firestore, `users/${user.uid}/communitySnippets`); 
                     const querySnapShot = await getDocs(communitySnippetRef);
                     
-                    return { data: querySnapShot.docs.map(doc => ({...doc.data()})) }; 
+                    return { data: querySnapShot.docs.map(doc => ({ ...doc.data() })) }; 
                 } catch (error) {
                     return {'fetchCommunitySnippets error': error};
                 };
@@ -30,7 +30,7 @@ export const apiSlice = createApi({
                     const postsQuery = query(collection(firestore, 'posts'), where('communityName', '==', name), orderBy('createdAt', 'desc'));
                     const querySnapShot = await getDocs(postsQuery);
 
-                    return {data: querySnapShot.docs.map(doc => ({ id: doc.id, ...doc.data() }))};
+                    return { data: querySnapShot.docs.map(doc => ({ ...doc.data() }))};
                 } catch (error: any) {
                     console.log({'fetchCommunityPosts error': error.message})
                 }

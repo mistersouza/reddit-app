@@ -38,7 +38,11 @@ const Header = ({ communityData: data }: Props) => {
         error        
     } = useFetchCommunitySnippetsQuery(user);
 
-    dispatch(setCommunityPage({ communitySnippets: snippets }));
+    useEffect(() => {
+        if (isSuccess) {
+            dispatch(setCommunityPage({ communitySnippets: snippets }));
+        }
+    }, [isSuccess, snippets, dispatch]);
 
    const handleJoinCommunity = async (communityData: CommunityPageState) => {
         try {

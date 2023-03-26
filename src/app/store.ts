@@ -3,7 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/authSlice';
 import communityModalReducer from '../features/communityModalSlice';
 import communityPageReducer from '../features/communityPageSlice';
-
+import postsReducer from '../features/postsSlice';
 import { apiSlice } from '@/features/api/apiSlice';
 
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
@@ -14,6 +14,7 @@ export const store = configureStore({
         auth: authReducer,
         communityModal: communityModalReducer,
         communityPage: communityPageReducer,
+        posts: postsReducer,
         [apiSlice.reducerPath]: apiSlice.reducer
     },
     middleware: getDefaultMiddleware => getDefaultMiddleware({

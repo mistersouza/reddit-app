@@ -4,30 +4,34 @@ import { FieldValue } from "firebase/firestore";
 
 export interface Post {
     id?: string;
-    communityName: string | string[] | undefined;
     authorId: string;
     authorUsername: string | null;
+    communityName: string | string[] | undefined;
+    communityImageUrl?: string;
     title: string;
     text: string;
+    voteStatus?: {
+        id: string;
+        value: number;
+    };
     numberOfComments: number;
     numberOfUpvotes: number;
     imageUrl?: string;
-    communityImageUrl?: string;
     createdAt: Timestamp | FieldValue;
 };
 
-export interface PostState {
+export interface PostsState {
     posts: Post[];
     post: Post | null;
 };
 
-const initialState: PostState = {
+const initialState: PostsState = {
     posts: [],
     post: null,
 };
 
-export const postSlice = createSlice({
-    name: 'post',
+export const postsSlice = createSlice({
+    name: 'posts',
     initialState,
     reducers: {
         setPosts: (state, action) => {
@@ -44,13 +48,25 @@ export const postSlice = createSlice({
                     return post;
                 }
             });
+        },
+        voteStatus: (state, action) => {
+            state.posts = state.posts.map(post => {
+                if (post.id === action.payload.id) {
+                    return {
+                        ...post,
+                        voteStatus: action.payload.voteStatus
+                    }
+                } else {
+                    return post;
+                }
+            });
         }
     }
 });
 
-export const { setPosts } = postSlice.actions;
+export const { setPosts } = postsSlice.actions;
 
-export default postSlice.reducer;
+export default postsSlice.reducer;
 
 
 
