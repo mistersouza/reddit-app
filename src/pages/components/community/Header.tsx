@@ -14,10 +14,6 @@ import { auth, firestore } from '@/firebase/client';
 import { doc, increment, writeBatch } from 'firebase/firestore';
 import { useFetchCommunitySnippetsQuery } from '@/features/api/apiSlice';
 
-
-
-
-
 type Props = {
     communityData: CommunityPageState;
 }
@@ -109,7 +105,7 @@ const Header = ({ communityData: data }: Props) => {
     <div className='flex flex-col w-full h-36'>
         <div className='h-1/2 bg-blue-400' />
         <div className='flex justify-center bg-white grow'>
-            <div className='flex w-11/12 max-w-screen-sm'>
+            <div className='flex w-11/12 max-w-screen-md'>
                 <div className='flex justify-center items-center overflow-hidden rounded-full bg-blue-400 w-20 h-20 relative -top-4 border-4 border-white'>
                    <PhotoIcon className='text-white' />
                 </div>

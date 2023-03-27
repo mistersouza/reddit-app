@@ -8,6 +8,7 @@ import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } 
 
 
 import Image from 'next/image';
+import PostDropdown from './PostDropdown';
 
 type Props = {
     post: Post;
@@ -82,28 +83,28 @@ function Post ({
                 )}    
             </div>
             <div className='flex grow py-1.5 text-xs text-gray-500 font-[600] items-center gap-2'>
-                <div className='flex p-1 items-center gap-0.5 hover:bg-gray-200 rounded-sm'>
+                <div className='flex p-1 items-center gap-0.5 hover:bg-gray-100 rounded-sm'>
                     <ChatBubbleLeftIcon  className='w-5 h-5'/>
                     <p>Comments</p>
                 </div>
-                <div className='flex p-1 gap-0.5 items-center hover:bg-gray-200 rounded-sm'>
+                <div className='flex p-1 gap-0.5 items-center hover:bg-gray-100 rounded-sm'>
                     <GiftIcon className='w-5 h-5' />
                     <p>Award</p>
                 </div>
-                <div className='flex p-1 gap-0.5 items-center hover:bg-gray-200 rounded-sm'>
+                <div className='flex p-1 gap-0.5 items-center hover:bg-gray-100 rounded-sm'>
                     <ArrowUturnRightIcon className='w-5 h-5' />
                     <p>Share</p>
                 </div>
                 {isUserPost && (
                     <div 
-                        className='flex p-1 gap-0.5 items-center hover:bg-gray-200 rounded-sm'
+                        className='flex p-1 gap-0.5 items-center hover:bg-gray-100 rounded-sm'
                         onClick={handleDeleteClick}
                     >
                         <TrashIcon className='w-5 h-5' />
                         <p>Delete</p>
                     </div>  
                 )}
-                <EllipsisHorizontalIcon  className='w-5 h-5  hover:bg-gray-200 rounded-sm' />
+                <PostDropdown />
             </div>
         </div>
     </div>
