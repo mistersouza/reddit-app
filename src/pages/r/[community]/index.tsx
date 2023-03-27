@@ -5,7 +5,7 @@ import { GetServerSidePropsContext } from 'next'
 import { doc, getDoc } from 'firebase/firestore'; 
 import { firestore } from '../../../firebase/client'; 
 
-import { CommunityPageState } from '@/features/communityPageSlice';
+import { CommunityPageState } from '@/features/communitySlice';
 import NotFound from '@/pages/components/community/NotFound';
 import Header from '@/pages/components/community/Header';
 import PageLayout from '@/pages/components/layout/PageLayout';

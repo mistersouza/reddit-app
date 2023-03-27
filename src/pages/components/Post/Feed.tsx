@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-import { CommunityPageState } from '@/features/communityPageSlice';
+import { CommunityPageState } from '@/features/communitySlice';
 import { useFetchCommunityPostsQuery } from '@/features/api/apiSlice';
 
 

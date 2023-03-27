@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { RootState } from '@/app/store';
 import { useSelector, useDispatch } from 'react-redux';
-import { CommunityPageState, joinCommunity, leaveCommunity, setCommunityPage } from '@/features/communityPageSlice';
+import { Community, joinCommunity, leaveCommunity, setCommunity } from '@/features/communitySlice';
 import { openAuthModal } from '@/features/authSlice';
 // import Image from 'next/image';
 
@@ -15,7 +15,7 @@ import { doc, increment, writeBatch } from 'firebase/firestore';
 import { useFetchCommunitySnippetsQuery } from '@/features/api/apiSlice';
 
 type Props = {
-    communityData: CommunityPageState;
+    communityData: Community;
 }
 
 const Header = ({ communityData: data }: Props) => {
@@ -36,11 +36,12 @@ const Header = ({ communityData: data }: Props) => {
 
     useEffect(() => {
         if (isSuccess) {
-            dispatch(setCommunityPage({ communitySnippets: snippets }));
+            dispatch(setCommunity({ communitySnippets: snippets }));
         }
     }, [isSuccess, snippets, dispatch]);
 
-   const handleJoinCommunity = async (communityData: CommunityPageState) => {
+
+   const handleJoinCommunity = async (communityData: Community) => {
         try {
             const batch = writeBatch(firestore);
 
@@ -81,7 +82,7 @@ const Header = ({ communityData: data }: Props) => {
     }
 
 
-    const handleJoinOrLeaveCommunityClick = (info: CommunityPageState) => {
+    const handleJoinOrLeaveCommunityClick = (info: Community) => {
         if (!user) {
             dispatch(openAuthModal('login'));
             return;

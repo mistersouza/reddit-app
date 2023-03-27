@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 import authReducer from '../features/authSlice';
 import communityModalReducer from '../features/communityModalSlice';
-import communityPageReducer from '../features/communityPageSlice';
+import communityPageReducer from '../features/communitySlice';
 import postsReducer from '../features/postsSlice';
 import { apiSlice } from '@/features/api/apiSlice';
 
