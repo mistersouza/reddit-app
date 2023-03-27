@@ -17,7 +17,7 @@ export const apiSlice = createApi({
                 try {
                     const communitySnippetRef = collection(firestore, `users/${user.uid}/communitySnippets`); 
                     const querySnapShot = await getDocs(communitySnippetRef);
-                    
+
                     return { data: querySnapShot.docs.map(doc => ({ ...doc.data() })) }; 
                 } catch (error) {
                     return {'fetchCommunitySnippets error': error};

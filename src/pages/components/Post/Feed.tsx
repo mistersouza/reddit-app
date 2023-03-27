@@ -9,7 +9,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Post as PostType, setPosts } from '@/features/postsSlice';
 import Post from './Post';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/firebase/client';
+import { auth, firestore, storage } from '@/firebase/client';
+
+import { deleteObject, ref } from 'firebase/storage';
+import { deleteDoc, doc } from 'firebase/firestore';
 
 
 type Props = {
@@ -17,8 +20,9 @@ type Props = {
 }
 
 function Feed({ community }: Props) {
-    const dispatch = useDispatch();
+
     const { posts } = useSelector((state: RootState) => state.posts);
+    const dispatch = useDispatch();
 
     const [ user ] = useAuthState(auth)
     const {
@@ -33,8 +37,23 @@ function Feed({ community }: Props) {
         console.log(postId, vote);
     }
 
-    const handleDeletePostClick = () => {
-        console.log('delete');
+    const handleDeletePost = async(post: PostType): Promise<boolean> => {
+        try {
+            if (post.imageUrl) {
+                const imageRef = ref(storage, `posts/${post.id}/image`);
+                await deleteObject(imageRef);
+            }
+
+            await deleteDoc(doc(firestore, 'posts', post.id!)); 
+
+            dispatch(setPosts(posts.filter(item => item.id !== post.id)));
+            
+            return true;
+        } catch (error) {
+            console.log({'delete post': error});
+            
+            return false;
+        }
     }
 
     const handleSelectPostClick = () => {
@@ -52,7 +71,7 @@ function Feed({ community }: Props) {
   return (
     <div className='flex flex-col gap-1'>
         {posts.map((post: PostType) => (
-            <Post key={post.id} post={post} isUserPost={post.authorId === user?.uid} vote={handleVote} voteScore={1} deletePost={handleDeletePostClick} selectPost={handleDeletePostClick} />
+            <Post key={post.id} post={post} isUserPost={post.authorId === user?.uid} vote={handleVote} voteScore={1} deletePost={handleDeletePost} selectPost={handleSelectPostClick} />
         ))}
     </div>
   )

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import TimeAgo from 'react-timeago'; 
 
 import { Post } from '@/features/postsSlice';
@@ -14,7 +14,7 @@ type Props = {
     isUserPost: boolean;
     voteScore: number;
     vote: (postId: string, vote: number) => void;
-    deletePost: () => void;
+    deletePost: (post: Post) => Promise<boolean>;
     selectPost: () => void;
 }
 
@@ -26,8 +26,18 @@ function Post ({
     selectPost,
 
 }: Props) {
+    const [ errorMessage, setErrorMessage ] = useState<string | null>(null);
 
-    console.log(post.imageUrl);
+    const handleDeleteClick = async() => {
+        try {
+            const isDeleted = await deletePost(post);
+            
+            if (!isDeleted) throw new Error('Uh-oh, something went wrong. Please try again.');
+
+        } catch (error: any) {
+            setErrorMessage(error.message);
+        }
+    }
   return (
     <div 
         className='flex border border-gray-300 rounded-sm pt-2 bg-white hover:border-gray-500 cursor-pointer'
@@ -85,7 +95,10 @@ function Post ({
                     <p>Share</p>
                 </div>
                 {isUserPost && (
-                    <div className='flex p-1 gap-0.5 items-center hover:bg-gray-200 rounded-sm'>
+                    <div 
+                        className='flex p-1 gap-0.5 items-center hover:bg-gray-200 rounded-sm'
+                        onClick={handleDeleteClick}
+                    >
                         <TrashIcon className='w-5 h-5' />
                         <p>Delete</p>
                     </div>  
