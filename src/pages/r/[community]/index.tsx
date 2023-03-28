@@ -1,35 +1,45 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { GetServerSidePropsContext } from 'next'
 
 import { doc, getDoc } from 'firebase/firestore'; 
 import { firestore } from '../../../firebase/client'; 
 
-import { CommunityPageState } from '@/features/communitySlice';
+import { Community, setCommunity } from '@/features/communitySlice';
 import NotFound from '@/pages/components/community/NotFound';
 import Header from '@/pages/components/community/Header';
 import PageLayout from '@/pages/components/layout/PageLayout';
 import CreatePost from '@/pages/components/community/CreatePost';
 import Feed from '@/pages/components/Post/Feed';
+import { useDispatch } from 'react-redux';
+import About from '@/pages/components/community/About';
 
 type Props = {
-    communityData: CommunityPageState;
+    community: Community;
     message?: string; 
 }
 
-const CommunityPage = ({ communityData: data }: Props) => {
+const CommunityPage = ({ community: data }: Props) => {
+    const dispatch = useDispatch();
 
+    
+    useEffect(() => {
+        dispatch(setCommunity({ currentCommunity: data }));
+    }, [data, dispatch]);
+    
     if (!data) return <NotFound error='Sorry, there aren&#39;t any communities on Reddit with that name.'/>; 
 
     return (
         <div className='w-full'>
-            <Header communityData={data} />
+            <Header community={data} />
             <PageLayout>
                 <div>
                     <CreatePost />
                     <Feed community={data} />
                 </div>
-                <div>Right content</div>
+                <div>
+                    <About community={data} />
+                </div>
             </PageLayout>
         </div>
     ) 
@@ -48,14 +58,14 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
         if (!communityDoc.exists()) {
             return {
                 props: {
-                    communityData: null,
+                    community: null,
                 }
             }
         }
 
         return {
             props: {
-                communityData: JSON.parse(JSON.stringify(communityDoc.data())),
+                community: JSON.parse(JSON.stringify(communityDoc.data())),
             },
         };
     } catch (error) {

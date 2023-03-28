@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { CommunityPageState } from '@/features/communitySlice';
-import { useFetchCommunityPostsQuery } from '@/features/api/apiSlice';
+import { useDeletePostMutation, useFetchCommunityPostsQuery } from '@/features/api/apiSlice';
 
 
 import { RootState } from '@/app/store';

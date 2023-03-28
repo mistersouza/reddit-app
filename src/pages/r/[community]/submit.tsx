@@ -6,9 +6,15 @@ import PostForm from '@/pages/components/Post/PostForm'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '@/firebase/client'
 
+
+import { useSelector } from 'react-redux'
+import { RootState } from '@/app/store'
+
 const Submit = () => {
   const [ user ] = useAuthState(auth)
-
+  const { currentCommunity } = useSelector((state: RootState) => state.communityPage);
+  
+  
   return (
     <PageLayout>
       <>

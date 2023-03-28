@@ -15,10 +15,10 @@ import { doc, increment, writeBatch } from 'firebase/firestore';
 import { useFetchCommunitySnippetsQuery } from '@/features/api/apiSlice';
 
 type Props = {
-    communityData: Community;
+    community: Community;
 }
 
-const Header = ({ communityData: data }: Props) => {
+const Header = ({ community: data }: Props) => {
     const { communitySnippets } = useSelector((state: RootState) => state.communityPage);
     const [ user ] = useAuthState(auth);
     
@@ -41,17 +41,17 @@ const Header = ({ communityData: data }: Props) => {
     }, [isSuccess, snippets, dispatch]);
 
 
-   const handleJoinCommunity = async (communityData: Community) => {
+   const handleJoinCommunity = async (community: Community) => {
         try {
             const batch = writeBatch(firestore);
 
             const newCommunitySnippet = {
-                communityName: communityData.name,
-                imageUrl: communityData.imageUrl || '',
+                communityName: community.name,
+                imageUrl: community.imageUrl || '',
             };
-            batch.set(doc(firestore, `users/${user?.uid}/communitySnippets`, communityData.name), newCommunitySnippet);
+            batch.set(doc(firestore, `users/${user?.uid}/communitySnippets`, community.name), newCommunitySnippet);
             
-            batch.update(doc(firestore, `communities/${communityData.name}`), {
+            batch.update(doc(firestore, `communities/${community.name}`), {
                 numberOfMembers: increment(1),
             });
 

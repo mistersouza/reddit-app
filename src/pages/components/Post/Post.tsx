@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import TimeAgo from 'react-timeago'; 
 
-import { Post } from '@/features/postsSlice';
+import { Post, setPosts } from '@/features/postsSlice';
 
 import { ArrowUpCircleIcon as ArrowUpCircleIconOutline, ArrowDownCircleIcon as ArrowDownCircleIconOutline, ChatBubbleLeftIcon, GiftIcon, ArrowUturnRightIcon, EllipsisHorizontalIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } from '@heroicons/react/20/solid'
@@ -9,6 +9,9 @@ import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } 
 
 import Image from 'next/image';
 import PostDropdown from './PostDropdown';
+import { useDeletePostMutation } from '@/features/api/apiSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
 
 type Props = {
     post: Post;
@@ -23,22 +26,35 @@ function Post ({
     post,
     isUserPost,
     vote,
-    deletePost,
+    // deletePost,
     selectPost,
 
 }: Props) {
+    const { posts } = useSelector((state: RootState) => state.posts);
+
     const [ errorMessage, setErrorMessage ] = useState<string | null>(null);
 
-    const handleDeleteClick = async() => {
-        try {
-            const isDeleted = await deletePost(post);
-            
-            if (!isDeleted) throw new Error('Uh-oh, something went wrong. Please try again.');
+    const [deletePost, { isLoading, isSuccess, isError, error }] = useDeletePostMutation();
 
-        } catch (error: any) {
-            setErrorMessage(error.message);
+    const handleDeleteClick = async() => {
+
+        try {
+            await deletePost(post)
+    
+            /* if (isError) setErrorMessage('Oops! Something went wrong. Please try again.');  
+    
+            if (isSuccess) setErrorMessage(null); */
+
+            console.log(isError)
+            console.log(isSuccess)
+
+        } catch(error: any) {
+            console.log({ message: errorMessage })
+            // console.log({error})
         }
     }
+
+
   return (
     <div 
         className='flex border border-gray-300 rounded-sm pt-2 bg-white hover:border-gray-500 cursor-pointer'

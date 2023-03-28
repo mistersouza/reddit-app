@@ -4,7 +4,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export interface CommunitySnippet {
     communityName: string;
-    isModerator: boolean;
+    isModerator?: boolean;
     imageUrl?: string;
 } 
 
@@ -20,7 +20,7 @@ export interface Community {
 
 export interface CommunityState {
     communities: Community[];
-    currentCommunity: Community; 
+    currentCommunity?: Community; 
     communitySnippets: CommunitySnippet[];
 }
 
@@ -41,21 +41,33 @@ export const communitySlice = createSlice({
     initialState,
     reducers: {
         setCommunity: (state, action) => {
-            state.currentCommunity.name = action.payload.name;
-            state.currentCommunity.description = action.payload.description;
-            state.currentCommunity.creatorId = action.payload.creatorId;
-            state.currentCommunity.privacyType = action.payload.privacyType;
-            state.currentCommunity.numberOfMembers = action.payload.numberOfMembers;
-            state.currentCommunity.createdAt = action.payload.createdAt;
-            state.communitySnippets = action.payload.communitySnippets;
+            const { currentCommunity, communitySnippets } = action.payload;
+            
+            if (currentCommunity) {
+                state.currentCommunity = currentCommunity;
+                state.communities.push(currentCommunity);
+                state.communitySnippets.push({
+                    communityName: currentCommunity.name,
+                    isModerator: true,
+                    imageUrl: currentCommunity.imageUrl
+                });
+            }
         },
         joinCommunity: (state, action) => {
-            state.currentCommunity.numberOfMembers += 1;
-            state.communitySnippets.push(action.payload);
+            const { currentCommunity } = action.payload;
+            
+            if (currentCommunity) {
+                state.currentCommunity!.numberOfMembers += 1;
+                state.communitySnippets.push(action.payload);
+            }
         },
+
         leaveCommunity: (state, action) => {
-            state.currentCommunity.numberOfMembers -= 1;
-            state.communitySnippets = state.communitySnippets.filter(snippet => snippet.communityName !== action.payload.communityName);
+            const { currentCommunity } = action.payload;
+            if (currentCommunity) {
+                state.currentCommunity!.numberOfMembers -= 1;
+                state.communitySnippets = state.communitySnippets.filter(snippet => snippet.communityName !== action.payload.communityName);
+            }
         }
     }
 });

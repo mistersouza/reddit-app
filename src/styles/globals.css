@@ -8,7 +8,7 @@
     }
 
     .btn-solid {
-        @apply btn bg-blue-600 text-white border border-blue-600 shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto;
+        @apply btn bg-blue-600 text-white border border-blue-600 shadow-sm hover:bg-blue-500 sm:w-auto;
     }
 
     .btn-outline {

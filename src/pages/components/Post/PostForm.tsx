@@ -99,6 +99,7 @@ function PostForm({ user }: Props) {
 
     try {
       const docRef = await addDoc(collection(firestore, 'posts'), newPost);
+      await updateDoc(docRef, { id: docRef.id });
 
       if(media) {
         const imageRef = ref(storage, `posts/${docRef.id}/image`);
