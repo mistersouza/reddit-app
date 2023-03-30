@@ -9,9 +9,16 @@ import HomeDropdown from './HomeDropdown/index'
 import CommunityModal from '../modal/community'
 import Image from 'next/image'
 
-// type Props = {}
+type Props = {
+  images: {
+    id: string;
+    url: string;
+  }
+}
 
-const Navbar = () => {
+const Navbar = ({ images }: Props) => {
+
+  console.log({images: images});
   const [ user, loading, error ] = useAuthState(auth); 
 
   return (
@@ -19,7 +26,7 @@ const Navbar = () => {
       <div className='flex items-center'>
         <div className='relative h-8 w-10'>
           <Image 
-            src='images/redditFace.svg'
+            src='https://res.cloudinary.com/dhlhrakma/image/upload/v1680168856/redditFace_hugvxs.svg'
             fill
             style={{ objectFit: 'contain' }}
             alt='Reddit Logo'
@@ -27,7 +34,7 @@ const Navbar = () => {
         </div>
         <div className='relative h-11 w-20'>
           <Image
-            src='images/redditText.svg'
+            src='https://res.cloudinary.com/dhlhrakma/image/upload/v1680168820/redditText_wrhcmf.svg'
             fill
             style={{ objectFit: 'cover' }}
             alt='Reddit Logo'
@@ -35,7 +42,7 @@ const Navbar = () => {
         </div>
       </div>
         <CommunityModal />
-        { user && <HomeDropdown /> }
+        {user && <HomeDropdown />}
         <SearchInput user={user} />
         <MenuOptions user={user} />
     </div>
@@ -43,3 +50,27 @@ const Navbar = () => {
 }
 
 export default Navbar
+
+export async function getStaticProps() {
+  const results = await fetch(`curl https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image`, {
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${process.env.CLOUDINARY_API_KEY}:${process.env.CLOUDINARY_API_SECRET}`).toString('base64')}`
+    }
+  }).then(response => response.json());
+
+  console.log('results', results)
+
+  const { resources } = results;
+  const images = resources.map((resource: any) => {
+    return {
+      id: resource.asset_id,
+      url: resource.secure_url
+    }
+  });
+
+  return {
+    props: {
+      images
+    }
+  }; 
+}; 

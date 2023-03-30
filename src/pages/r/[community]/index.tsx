@@ -13,6 +13,7 @@ import CreatePost from '@/pages/components/community/CreatePost';
 import Feed from '@/pages/components/Post/Feed';
 import { useDispatch } from 'react-redux';
 import About from '@/pages/components/community/About';
+import Moderators from '@/pages/components/community/Moderators';
 
 type Props = {
     community: Community;
@@ -39,6 +40,7 @@ const CommunityPage = ({ community: data }: Props) => {
                 </div>
                 <div>
                     <About community={data} />
+                    <Moderators />
                 </div>
             </PageLayout>
         </div>

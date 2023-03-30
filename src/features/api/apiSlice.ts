@@ -1,7 +1,7 @@
 // Importing the createApi and fakeBaseQuery from React-specific entry point
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
-import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
-import { deleteObject, ref, uploadString } from 'firebase/storage';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { deleteObject, getDownloadURL, ref, uploadString } from 'firebase/storage';
 
 import { firestore, storage } from '../../../src/firebase/client';
 import { Post } from '../postsSlice';
@@ -42,24 +42,14 @@ export const apiSlice = createApi({
             providesTags: ['Post']
         }),
         createPost: builder.mutation({
-            queryFn: async(post: Post) => {
-
+            queryFn: async(post: Post, file: string) => {
                 try {
-                    const postRef = doc(firestore, 'posts');
-                    await setDoc(postRef, { id: postRef.id, ...post});
+                    const postRef = await addDoc(collection(firestore, 'posts'), post);
+                    await updateDoc(postRef, { id: postRef.id });
 
-                    if (post.imageUrl) {
-                        const imageRef = ref(storage, `posts/${postRef.id}/image`);
-                        await uploadString(imageRef, post.imageUrl, 'data_url');
-
-                        const imageUrl = await getDownloadURL(imageRef);
-                        await updateDoc(postRef, { imageUrl })
-                    }
-                    return { data: post };
-
+                
                 } catch (error: any) {
-                    return { data: post, error: { message: error.message } };
-                    
+                    return { error: error.message };
                 }
             },
             invalidatesTags: ['Post']

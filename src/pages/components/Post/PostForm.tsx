@@ -14,6 +14,8 @@ import { useRouter } from 'next/router'
 import { addDoc, collection, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { firestore, storage } from '@/firebase/client'
 import { getDownloadURL, ref, uploadString } from 'firebase/storage'
+// import { useCreatePostMutation } from '@/features/api/apiSlice'
+import useFile from '@/hooks/useFile'
 
 type Props = {
   user: User;
@@ -51,29 +53,14 @@ const tabs: Tab[] = [
 function PostForm({ user }: Props) {
   const [ activeTab, setActiveTab ] = useState(tabs[0]); 
   // const [ loading, setLoading ] = useState(false);
-
+  // const [ createPost ] = useCreatePostMutation();
+  const { file, handleFileChange, setFile } = useFile();
   const [ form, setForm ] = useState({
     title: '',
     text: '',
   }); 
-  const [ media, setMedia ] = useState<string>('');
   
   const router = useRouter();
-
-  const handleMediaUpload = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-    const file = target.files?.[0];
-    
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-
-      reader.onload = () => {
-        if (reader.result) {
-          setMedia(reader.result as string);
-        }
-      }
-    }
-  }
 
   const handleFormChange = ({ target }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({
@@ -97,13 +84,15 @@ function PostForm({ user }: Props) {
       createdAt: serverTimestamp(),
     }
 
+    // createPost(newPost);
+
     try {
       const docRef = await addDoc(collection(firestore, 'posts'), newPost);
       await updateDoc(docRef, { id: docRef.id });
 
-      if(media) {
+      if(file) {
         const imageRef = ref(storage, `posts/${docRef.id}/image`);
-        await uploadString(imageRef, media, 'data_url'); 
+        await uploadString(imageRef, file, 'data_url'); 
         
         const imageUrl = await getDownloadURL(imageRef);
         await updateDoc(docRef, { imageUrl })
@@ -114,7 +103,7 @@ function PostForm({ user }: Props) {
       console.log({error});
     }
 
-    // router.back(); 
+    router.back(); 
   }
 
   return (
@@ -135,10 +124,10 @@ function PostForm({ user }: Props) {
         )}
         {activeTab.label === 'Images & Video' && (
           <MediaUpload 
-            media={media}
+            file={file}
             setActiveTab={setActiveTab}
-            setMedia={setMedia}
-            handleMediaUpload={handleMediaUpload}
+            setFile={setFile}
+            handleFileChange={handleFileChange}
           />
         )}
         <TagButtons />

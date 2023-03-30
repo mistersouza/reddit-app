@@ -11,7 +11,7 @@ export interface CommunitySnippet {
 export interface Community {
     name: string;
     description?: string;
-    creatorId: string;
+    createdBy: string;
     privacyType: 'public' | 'restricted' | 'private';
     numberOfMembers: number;
     createdAt?: Timestamp;

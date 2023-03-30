@@ -4,18 +4,18 @@ import React from 'react'
 import { Tab } from '../PostForm';
 
 type Props = {
-  media?: string;
+  file?: string;
   setActiveTab: (tab: Tab) => void;
-  setMedia: (file: string) => void;
-  handleMediaUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  setFile: (file: string) => void;
+  handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function MediaUpload({ media, setActiveTab, setMedia, handleMediaUpload }: Props) {
+function MediaUpload({ file, setActiveTab, setFile, handleFileChange }: Props) {
   return (
     <div className='relative w-full h-64 overflow-hidden'>
-      {media ? (
+      {file ? (
         <Image
-          src={media}
+          src={file}
           fill
           objectFit='cover'
           alt='Post media'
@@ -29,7 +29,7 @@ function MediaUpload({ media, setActiveTab, setMedia, handleMediaUpload }: Props
                 id='upload'
                 type='file'
                 className='hidden'
-                onChange={handleMediaUpload}
+                onChange={handleFileChange}
               />
           </button>
       </div>

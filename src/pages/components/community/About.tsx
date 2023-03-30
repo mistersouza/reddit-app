@@ -2,20 +2,52 @@ import React from 'react'
 
 import { Community } from '@/features/communitySlice';
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
-import { BuildingStorefrontIcon } from '@heroicons/react/24/outline';
+import { BuildingStorefrontIcon, ChevronDownIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 import Link from 'next/link';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, firestore, storage } from '@/firebase/client';
+import useFile from '@/hooks/useFile';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { doc, updateDoc } from 'firebase/firestore';
+import clsx from 'clsx';
 
 type Props = {
     community: Community;
 }
 
 function About({ community: data }: Props) {
+    const inputRef = React.useRef<HTMLInputElement>(null);
+    const [ user ] = useAuthState(auth);
+    const { createdBy: moderator, imageUrl } = data;
+    const { file } = useFile();
+
+    const [ showCommunityOptions, setShowCommunityOptions ] = React.useState(false);
+
+    const communityOptionsClasses = clsx({
+        'hidden': !showCommunityOptions,
+    })
 
     const getBirthDate = (seconds: number) => {
         const event =  new Date(seconds * 1000);
         return event.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
     }; 
+
+    const handleChangeImage = async() => {
+        if (!file) return; 
+
+        try {
+            const imageRef = ref(storage, `communities/${data.name}/image`);
+            uploadString(imageRef, file as string, 'data_url');
+            const downloadUrl = await getDownloadURL(imageRef);
+            await updateDoc(doc(firestore, 'communities', data.name), {
+                imageUrl: downloadUrl,
+            });
+
+        } catch (error: any) {
+            console.log(error);
+        }
+    };
 
   return (
     <div className='stick top=[]'>
@@ -45,6 +77,24 @@ function About({ community: data }: Props) {
                 <button className='btn-solid w-full'>Create Post</button>
             </Link>
         </div>
+        <div className='border-b border-gray-200 py-3 bg-white'>
+            <div 
+                className='flex item-center justify-between px-3 py-1.5 text-xs text-blue-600 font-[600] rounded-full hover:bg-gray-200 hover:text-gray-800'
+                onClick={() => setShowCommunityOptions(!showCommunityOptions)}
+            >
+                <p>Community options</p>
+                <ChevronDownIcon className='w-4 h-4'/>
+            </div>
+            <div className={`${communityOptionsClasses} flex item-center justify-start gap-2 py-1.5 text-xs text-gray-700`}>
+                <EyeSlashIcon className='w-4 h-4'/>
+                <p>Community theme</p>
+            </div>
+        
+        </div>
+        { user?.uid === moderator && (
+            <>
+            </>
+        )}
     </div>
   )
 }
