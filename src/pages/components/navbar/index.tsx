@@ -10,10 +10,10 @@ import CommunityModal from '../modal/community'
 import Image from 'next/image'
 
 type Props = {
-  images: {
-    id: string;
-    url: string;
-  }
+  image: [{
+    id: string,
+    url: string,
+  }]; 
 }
 
 const Navbar = ({ images }: Props) => {
@@ -42,7 +42,7 @@ const Navbar = ({ images }: Props) => {
         </div>
       </div>
         <CommunityModal />
-        {user && <HomeDropdown />}
+        { user && <HomeDropdown /> }
         <SearchInput user={user} />
         <MenuOptions user={user} />
     </div>

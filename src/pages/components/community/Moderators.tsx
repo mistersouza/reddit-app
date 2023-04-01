@@ -5,11 +5,14 @@ import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/firebase/client';
 
+import Toggle from '@/pages/components/Toggle';
 type Props = {}
 
 function Moderators({}: Props) {
     const [ user ] = useAuthState(auth);
+
   return (
+    <>
     <div className='flex flex-col space-y-3'>
         <div className='flex items-center justify-between bg-blue-500 p-3 rounded-sm text-xs text-white font-[600]'>
             <h3>Moderators</h3>
@@ -29,6 +32,7 @@ function Moderators({}: Props) {
             <p className='text-xs text-right uppercase text-blue-500 font-semibold cursor-pointer'>View all moderators</p>
         </div>
     </div>
+    </>
   )
 }
 

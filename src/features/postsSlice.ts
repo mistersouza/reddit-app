@@ -20,14 +20,23 @@ export interface Post {
     createdAt: Timestamp | FieldValue;
 };
 
+export interface Vote {
+    id: string;
+    postId: string;
+    value: number;
+    communityName: string;
+};
+
 export interface PostsState {
     posts: Post[];
+    votes: Vote[];
     post: Post | null;
 };
 
 const initialState: PostsState = {
     posts: [],
     post: null,
+    votes: []
 };
 
 export const postsSlice = createSlice({

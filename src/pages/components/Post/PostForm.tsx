@@ -14,7 +14,9 @@ import { useRouter } from 'next/router'
 import { addDoc, collection, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { firestore, storage } from '@/firebase/client'
 import { getDownloadURL, ref, uploadString } from 'firebase/storage'
-// import { useCreatePostMutation } from '@/features/api/apiSlice'
+
+import { useCreatePostMutation } from '@/features/api/apiSlice';
+import { useUploadImageMutation } from '@/features/api/apiSlice'
 import useFile from '@/hooks/useFile'
 
 type Props = {
@@ -53,7 +55,8 @@ const tabs: Tab[] = [
 function PostForm({ user }: Props) {
   const [ activeTab, setActiveTab ] = useState(tabs[0]); 
   // const [ loading, setLoading ] = useState(false);
-  // const [ createPost ] = useCreatePostMutation();
+  const [ createPost, { data: postRef } ] = useCreatePostMutation();
+  const [ uploadImage ] = useUploadImageMutation();
   const { file, handleFileChange, setFile } = useFile();
   const [ form, setForm ] = useState({
     title: '',
@@ -84,18 +87,21 @@ function PostForm({ user }: Props) {
       createdAt: serverTimestamp(),
     }
 
+    
+    // uploadImage(postRef, file);
+    
     // createPost(newPost);
-
+    
     try {
-      const docRef = await addDoc(collection(firestore, 'posts'), newPost);
-      await updateDoc(docRef, { id: docRef.id });
-
+      const postRef = await addDoc(collection(firestore, 'posts'), newPost);
+      await updateDoc(postRef, { id: postRef.id });
+      
       if(file) {
-        const imageRef = ref(storage, `posts/${docRef.id}/image`);
+        const imageRef = ref(storage, `posts/${postRef.id}/image`);
         await uploadString(imageRef, file, 'data_url'); 
         
         const imageUrl = await getDownloadURL(imageRef);
-        await updateDoc(docRef, { imageUrl })
+        await updateDoc(postRef, { imageUrl })
         
       }
 

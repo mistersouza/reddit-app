@@ -1,17 +1,18 @@
 // Importing the createApi and fakeBaseQuery from React-specific entry point
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
+import { User } from 'firebase/auth';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { deleteObject, getDownloadURL, ref, uploadString } from 'firebase/storage';
 
 import { firestore, storage } from '../../../src/firebase/client';
-import { Post } from '../postsSlice';
+import { Post, Vote } from '../postsSlice';
 
 // Define a single API slice object
 export const apiSlice = createApi({
     // the cache reducer expects to be added at 'state.api' (already default - this is optional)
     reducerPath: 'api',
     baseQuery: fakeBaseQuery(),
-    tagTypes: ['Post', 'CommunitySnippet'],
+    tagTypes: ['Post', 'CommunitySnippet', 'Vote'],
     endpoints: builder => ({
         fetchCommunitySnippets: builder.query({
             queryFn: async(user) => {
@@ -42,18 +43,35 @@ export const apiSlice = createApi({
             providesTags: ['Post']
         }),
         createPost: builder.mutation({
-            queryFn: async(post: Post, file: string) => {
+            queryFn: async(post: Post) => {
                 try {
                     const postRef = await addDoc(collection(firestore, 'posts'), post);
                     await updateDoc(postRef, { id: postRef.id });
 
-                
+                    return { data: { postRef } };
                 } catch (error: any) {
                     return { error: error.message };
                 }
             },
             invalidatesTags: ['Post']
         }),
+        vote: builder.mutation({
+            queryFn: async(user: User, vote: Vote) => {
+                
+                try {
+                    const voteRef = await addDoc(collection(firestore, `${user?.uid}/votes`), vote);
+                    await updateDoc(voteRef, { id: voteRef.id });
+
+                    return { data: { voteRef } };
+
+
+                } catch (error: any) {
+                    return { error: error.message };
+                }
+            },
+            invalidatesTags: ['Vote']
+        }),
+
         deletePost: builder.mutation({
             queryFn: async(post: Post) => {
                 const { id, imageUrl, communityName } = post;
@@ -79,8 +97,38 @@ export const apiSlice = createApi({
             },
             invalidatesTags: ['Post']
         }),
+        updatePost: builder.mutation({
+            queryFn: async(post: Post) => {
+                try {
+                    const postRef = doc(firestore, 'posts', post.id!);
+                    await updateDoc(postRef, { ...post });
+                    
+                    return { data: post };
+                } catch (error) {
+                    return { data: post };
+                }
+            }
+        }),
+        uploadImage: builder.mutation({
+            queryFn: async(postRef, file: string) => {
+
+                try {
+                    const imageRef = ref(storage, `posts/${postRef.id}/image`);
+                    await uploadString(imageRef, file, 'data_url'); 
+        
+                    const imageUrl = await getDownloadURL(imageRef);
+                    await updateDoc(postRef, { imageUrl })
+                    
+                    return { data: imageUrl };
+                } catch (error) {
+                    return { data: null };
+                }
+            },
+            invalidatesTags: ['Post']
+        }),
+            
     })
 });
 
-export const { useFetchCommunityPostsQuery, useFetchCommunitySnippetsQuery, useDeletePostMutation, useCreatePostMutation } = apiSlice;
+export const { useFetchCommunityPostsQuery, useFetchCommunitySnippetsQuery, useDeletePostMutation, useCreatePostMutation, useUploadImageMutation, useVoteMutation } = apiSlice;
 

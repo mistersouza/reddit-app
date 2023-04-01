@@ -11,6 +11,7 @@ import useFile from '@/hooks/useFile';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { doc, updateDoc } from 'firebase/firestore';
 import clsx from 'clsx';
+import Toggle from '../Toggle';
 
 type Props = {
     community: Community;
@@ -85,9 +86,12 @@ function About({ community: data }: Props) {
                 <p>Community options</p>
                 <ChevronDownIcon className='w-4 h-4'/>
             </div>
-            <div className={`${communityOptionsClasses} flex item-center justify-start gap-2 py-1.5 text-xs text-gray-700`}>
-                <EyeSlashIcon className='w-4 h-4'/>
-                <p>Community theme</p>
+            <div className={`${communityOptionsClasses} flex item-center justify-between gap-2 py-1.5 text-xs text-gray-700`}>
+                <div className='flex items-center gap-2'>
+                    <EyeSlashIcon className='w-4 h-4'/>
+                    <p>Community theme</p>
+                </div>
+                <Toggle />
             </div>
         
         </div>

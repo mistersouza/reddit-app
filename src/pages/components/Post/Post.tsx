@@ -9,15 +9,17 @@ import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } 
 
 import Image from 'next/image';
 import PostDropdown from './PostDropdown';
-import { useDeletePostMutation } from '@/features/api/apiSlice';
+import { useDeletePostMutation, useVoteMutation } from '@/features/api/apiSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/firebase/client';
 
 type Props = {
     post: Post;
     isUserPost: boolean;
     voteScore: number;
-    vote: (postId: string, vote: number) => void;
+    //vote: (postId: string, vote: number) => void;
     deletePost: (post: Post) => Promise<boolean>;
     selectPost: () => void;
 }
@@ -25,32 +27,39 @@ type Props = {
 function Post ({
     post,
     isUserPost,
-    vote,
+    //vote,
     // deletePost,
     selectPost,
 
 }: Props) {
+    const [ user ] = useAuthState(auth); 
+
     const { posts } = useSelector((state: RootState) => state.posts);
 
     const [ errorMessage, setErrorMessage ] = useState<string | null>(null);
 
     const [deletePost, { isLoading, isSuccess, isError, error }] = useDeletePostMutation();
+    const [ vote, { isLoading: voteLoading, isSuccess: voteSuccess, isError: voteError, error: voteErrorMessage } ] = useVoteMutation();
+    
+    const handleCreateVote = () => {
+        
+        if (!user) return;
+
+        try {
+            vote(user);
+            
+        } catch (error) {
+            console.log({error})
+        }
+    }
 
     const handleDeleteClick = async() => {
 
         try {
-            await deletePost(post)
-    
-            /* if (isError) setErrorMessage('Oops! Something went wrong. Please try again.');  
-    
-            if (isSuccess) setErrorMessage(null); */
-
-            console.log(isError)
-            console.log(isSuccess)
+            await deletePost(post);
 
         } catch(error: any) {
             console.log({ message: errorMessage })
-            // console.log({error})
         }
     }
 
@@ -63,7 +72,7 @@ function Post ({
         <div className='flex flex-col items-center px-2 bg-gray-50'>
             <button 
                 className='w-5 h-5 text-gray-500 cursor-pointer'
-                onClick={() => {}}
+                onClick={handleCreateVote}
             >
                 <ArrowUpCircleIconOutline />
             </button>
