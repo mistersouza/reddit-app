@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import TimeAgo from 'react-timeago'; 
 
-import { Post, setPosts } from '@/features/postsSlice';
+import { Post, setPosts, Vote } from '@/features/postsSlice';
 
 import { ArrowUpCircleIcon as ArrowUpCircleIconOutline, ArrowDownCircleIcon as ArrowDownCircleIconOutline, ChatBubbleLeftIcon, GiftIcon, ArrowUturnRightIcon, EllipsisHorizontalIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } from '@heroicons/react/20/solid'
@@ -10,16 +10,12 @@ import { ArrowUpIcon as ArrowUpIconSolid, ArrowDownIcon as ArrowDownIconSolid } 
 import Image from 'next/image';
 import PostDropdown from './PostDropdown';
 import { useDeletePostMutation, useVoteMutation } from '@/features/api/apiSlice';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/app/store';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/firebase/client';
 
 type Props = {
+    voteScore: number | undefined;
     post: Post;
     isUserPost: boolean;
-    voteScore: number;
-    //vote: (postId: string, vote: number) => void;
+    onVote: (post: Post, value: number) => void;
     deletePost: (post: Post) => Promise<boolean>;
     selectPost: () => void;
 }
@@ -27,31 +23,14 @@ type Props = {
 function Post ({
     post,
     isUserPost,
-    //vote,
+    voteScore,
+    onVote,
     // deletePost,
     selectPost,
 
 }: Props) {
-    const [ user ] = useAuthState(auth); 
-
-    const { posts } = useSelector((state: RootState) => state.posts);
-
-    const [ errorMessage, setErrorMessage ] = useState<string | null>(null);
-
-    const [deletePost, { isLoading, isSuccess, isError, error }] = useDeletePostMutation();
-    const [ vote, { isLoading: voteLoading, isSuccess: voteSuccess, isError: voteError, error: voteErrorMessage } ] = useVoteMutation();
-    
-    const handleCreateVote = () => {
-        
-        if (!user) return;
-
-        try {
-            vote(user);
-            
-        } catch (error) {
-            console.log({error})
-        }
-    }
+    const [ deletePost ] = useDeletePostMutation();
+    // const [ vote ] = useVoteMutation();
 
     const handleDeleteClick = async() => {
 
@@ -59,7 +38,7 @@ function Post ({
             await deletePost(post);
 
         } catch(error: any) {
-            console.log({ message: errorMessage })
+            console.log({ message: error.message })
         }
     }
 
@@ -72,14 +51,14 @@ function Post ({
         <div className='flex flex-col items-center px-2 bg-gray-50'>
             <button 
                 className='w-5 h-5 text-gray-500 cursor-pointer'
-                onClick={handleCreateVote}
+                onClick={() => onVote(post, 1)}
             >
                 <ArrowUpCircleIconOutline />
             </button>
             <p className='text-[.6rem] font-semibold'>{post.numberOfUpvotes ? post.numberOfUpvotes : 'Vote'}</p>
             <button
                 className='w-5 h-5 text-gray-500 cursor-pointer'
-                onClick={() => {}}
+                onClick={() => onVote(post, -1)}
             >
                 <ArrowDownCircleIconOutline />
             </button>

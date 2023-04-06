@@ -6,14 +6,15 @@ export interface Post {
     id?: string;
     authorId: string;
     authorUsername: string | null;
-    communityName: string | string[] | undefined;
+    communityName: string | undefined;
     communityImageUrl?: string;
     title: string;
     text: string;
-    voteStatus?: {
+    
+    /* voteStatus?: {
         id: string;
         value: number;
-    };
+    }; */
     numberOfComments: number;
     numberOfUpvotes: number;
     imageUrl?: string;
@@ -28,9 +29,9 @@ export interface Vote {
 };
 
 export interface PostsState {
+    post: Post | null;
     posts: Post[];
     votes: Vote[];
-    post: Post | null;
 };
 
 const initialState: PostsState = {
@@ -43,20 +44,44 @@ export const postsSlice = createSlice({
     name: 'posts',
     initialState,
     reducers: {
-        setPosts: (state, action) => {
-            state.posts = action.payload;
+        setPost: (state, action) => {
+            state.post = action.payload;
         },
-        postVotes: (state, action) => {
-            state.posts = state.posts.map(post => {
-                if (post.id === action.payload.id) {
-                    return {
-                        ...post,
-                        numberOfUpvotes: action.payload.numberOfUpvotes
-                    }
-                } else {
+
+        setPosts: (state, action) => {
+            if (!state.posts.length) {
+                state.posts = action.payload;
+            }
+
+            if (state.posts.length) {
+                state.posts = state.posts.map(post => {
+                    if (post.id === action.payload.id) {
+                        return {
+                            ...post,
+                            ...action.payload
+                        }
+                    } 
                     return post;
-                }
-            });
+                });
+            }
+        },
+
+        setVotes: (state, action) => {
+            if (!state.votes.length) {
+                state.votes.push(action.payload);
+            }
+
+            if (state.votes.length) {
+                state.votes = state.votes.map(vote => {
+                    if (vote.id === action.payload.id) {
+                        return {
+                            ...vote,
+                            value: action.payload.value
+                        }
+                    }
+                    return vote;
+                });
+            }
         },
         voteStatus: (state, action) => {
             state.posts = state.posts.map(post => {
@@ -73,7 +98,7 @@ export const postsSlice = createSlice({
     }
 });
 
-export const { setPosts } = postsSlice.actions;
+export const { setPost, setPosts, setVotes } = postsSlice.actions;
 
 export default postsSlice.reducer;
 

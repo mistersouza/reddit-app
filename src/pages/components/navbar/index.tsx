@@ -10,7 +10,7 @@ import CommunityModal from '../modal/community'
 import Image from 'next/image'
 
 type Props = {
-  image: [{
+  images: [{
     id: string,
     url: string,
   }]; 

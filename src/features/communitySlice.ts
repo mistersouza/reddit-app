@@ -28,7 +28,7 @@ const initialState: CommunityState = {
     currentCommunity: {
         name: '',
         description: '',
-        creatorId: '',
+        createdBy: '',
         privacyType: 'public',
         numberOfMembers: 0,
     },

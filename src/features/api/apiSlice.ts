@@ -16,15 +16,15 @@ export const apiSlice = createApi({
     endpoints: builder => ({
         fetchCommunitySnippets: builder.query({
             queryFn: async(user) => {
-                if (!user) return;
+                if (!user) return { data: [] };
                 
                 try {
                     const communitySnippetRef = collection(firestore, `users/${user.uid}/communitySnippets`); 
                     const querySnapShot = await getDocs(communitySnippetRef);
 
                     return { data: querySnapShot.docs.map(doc => ({ ...doc.data() })) }; 
-                } catch (error) {
-                    return {'fetchCommunitySnippets error': error};
+                } catch (error: any) {
+                    return { data: error};
                 };
             },
             providesTags: ['CommunitySnippet']
@@ -37,7 +37,7 @@ export const apiSlice = createApi({
 
                     return { data: querySnapShot.docs.map(doc => ({ ...doc.data() }))};
                 } catch (error: any) {
-                    console.log({'fetchCommunityPosts error': error.message})
+                    return { data: error }; 
                 }
             },
             providesTags: ['Post']
