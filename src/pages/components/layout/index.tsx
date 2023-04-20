@@ -11,10 +11,10 @@ type Props = {
 
 function Layout({ children }: Props) {
   return (
-    <>
+    <div className='h-full bg-gray-200'>
         <Navbar />
         <main>{children}</main>
-    </>
+    </div>
   )
 }
 
