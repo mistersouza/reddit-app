@@ -28,7 +28,7 @@ function CreatePost() {
     }
             
   return (
-    <div className='flex space-x-1.5 border border-gray-300 rounded-md pr-1.5 pt-1 pb-1.5 items-center justify-evenly'>
+    <div className='flex mb-2 border border-gray-300 rounded-md space-x-1.5 pr-1.5 pt-1 pb-1.5 items-center justify-evenly bg-slate-50'>
         <UserIcon className='h-8 w-8 text-gray-400'/>
         <input 
             className='grow h-7 text-xs bg-gray-100 rounded-sm py-2 px-3 hover:ring-1 hover:ring-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-transparent'
