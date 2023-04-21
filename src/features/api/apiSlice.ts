@@ -31,9 +31,15 @@ export const apiSlice = createApi({
             providesTags: ['CommunitySnippet']
         }),
         fetchCommunityPosts: builder.query({
-            queryFn: async(communityName) => {
+            queryFn: async(community) => {
                 try {
-                    const postsQuery = query(collection(firestore, 'posts'), where('communityName', '==', communityName), orderBy('createdAt', 'desc'));
+                    // prevent error when community is undefined
+                    if (!community.name) {
+                        console.log('community is undefined');
+                        return { data: [] };
+                    }
+                    
+                    const postsQuery = query(collection(firestore, 'posts'), where('communityName', '==', community.name), orderBy('createdAt', 'desc'));
                     const querySnapShot = await getDocs(postsQuery);
 
                     return { data: querySnapShot.docs.map(doc => ({ ...doc.data() }))};
@@ -44,9 +50,15 @@ export const apiSlice = createApi({
             providesTags: ['Post']
         }),
         fetchPost: builder.query({
-            queryFn: async(postId) => {
+            queryFn: async(pid: string) => {
                 try {
-                    const postRef = doc(firestore, 'posts', postId);   
+
+                    if (!pid) {
+                        console.log('pid id is undefined');
+                        return { data: null };
+                    }
+
+                    const postRef = doc(firestore, 'posts', pid);   
                     const postSnapShot = await getDoc(postRef);
 
                     if (postSnapShot.exists()) {
@@ -61,10 +73,20 @@ export const apiSlice = createApi({
             providesTags: ['Post']
         }),
         createPost: builder.mutation({
-            queryFn: async(post: Post) => {
+            queryFn: async(post: Post, file?: string) => {
                 try {
                     const postRef = await addDoc(collection(firestore, 'posts'), post);
                     await updateDoc(postRef, { id: postRef.id });
+
+                    if (file) {
+                        const imageRef = ref(storage, `posts/${postRef.id}/image`);
+                        await uploadString(imageRef, file, 'data_url');
+
+                        const imageUrl = await getDownloadURL(imageRef);
+                        await updateDoc(postRef, { imageUrl });
+                    }
+
+                    console.log('imageUrl: ', post.imageUrl);
 
                     return { data: { postRef } };
                 } catch (error: any) {
@@ -132,14 +154,24 @@ export const apiSlice = createApi({
             invalidatesTags: ['Post']
         }),
         updatePost: builder.mutation({
-            queryFn: async(post: Post) => {
+            queryFn: async(post) => {
                 try {
                     const postRef = doc(firestore, 'posts', post.id!);
                     await updateDoc(postRef, { ...post });
-                    
+
+                    if (file) {
+                        console.log('file is not null');
+                        /* const imageRef = ref(storage, `posts/${post.id}/image`);
+                        await uploadString(imageRef, file, 'data_url');
+                        const imageUrl = await getDownloadURL(imageRef);
+                        await updateDoc(postRef, { imageUrl }); */
+                    }
+
                     return { data: post };
+
                 } catch (error) {
-                    return { data: post };
+                    console.log({ error });
+                    return { data: null };
                 }
             }
         }),
@@ -153,8 +185,11 @@ export const apiSlice = createApi({
                     const imageUrl = await getDownloadURL(imageRef);
                     await updateDoc(postRef, { imageUrl })
                     
-                    return { data: imageUrl };
-                } catch (error) {
+                    return { data: {'url': imageUrl } };
+
+
+                } catch (error: any) {
+                    console.log({ error });
                     return { data: null };
                 }
             },
@@ -163,15 +198,18 @@ export const apiSlice = createApi({
         createComment: builder.mutation({
             queryFn: async(comment: Comment) => {
                 try {
+                    // create a batch to update multiple documents
                     const batch = writeBatch(firestore);
 
+                    // create a reference to the comment and post
                     const commentRef = doc(collection(firestore, 'comments'));
-
-                    batch.set(commentRef, { ...comment, id: commentRef.id });
-
                     const postRef = doc(firestore, 'posts', comment.postId!);
+
+                    // add the comment and increment the number of comments on the post
+                    batch.set(commentRef, { ...comment, id: commentRef.id });
                     batch.update(postRef, { numberOfComments: increment(1) });
 
+                    // commit the batch to firestore
                     await batch.commit();
 
                     return { data: { commentRef } };
@@ -182,17 +220,23 @@ export const apiSlice = createApi({
             invalidatesTags: ['Comment']
         }),
         deleteComment: builder.mutation({
-            queryFn: async(commentId: string) => {
+            queryFn: async(comment: Comment) => {
                 try {
-                    const commentRef = doc(firestore, 'comments', commentId!);
-                    const commentSnapShot = await getDoc(commentRef);
+                    // create a batch to update multiple documents
+                    const batch = writeBatch(firestore);
 
-                    if (commentSnapShot.exists()) {
-                        await deleteDoc(commentRef);
-                        return { data: { commentId } };
-                    } 
+                    // create a reference to the comment and post
+                    const commentRef = doc(firestore, 'comments', comment.id!);
+                    const postRef = doc(firestore, 'posts', comment.postId!);
 
-                    return { data: { commentId } };
+                    // delete the comment and decrement the number of comments on the post
+                    batch.delete(commentRef);
+                    batch.update(postRef, { numberOfComments: increment(-1) });
+
+                    // commit the batch to firestore
+                    await batch.commit();
+
+                    return { data: comment.id };
                 } catch (error) {
                     return { data: null };
                 }
@@ -201,15 +245,21 @@ export const apiSlice = createApi({
         }),
         fetchComments: builder.query({  
             queryFn: async(post) => {
-                // func should take postId, and query(collection(firestore, 'comments'), orderBy('createdAt', 'desc')) should
+            
+                // prevent error when app is first loaded, and post is undefined
+                if (!post.id) {
+                    console.log('no post id');
+                    return { data: [] };
+                }
+
                 try {
-                    const commentsQuery = query(collection(firestore, 'comments'));
+                    const commentsQuery = query(collection(firestore, 'comments'), where('postId', '==', post.id), orderBy('createdAt', 'desc'));
                     const querySnapShot = await getDocs(commentsQuery);
-                    const comments = querySnapShot.docs.map(doc => ({ ...doc.data() }));
-                    
-                    // temp fix
-                    return { data: comments.filter((comment) => comment.postId === post.id) };
-                } catch (error) {
+
+
+                    return { data: querySnapShot.docs.map(doc => ({ ...doc.data() }))};
+                } catch (error: any) {
+                    console.log({ error: error.message });
                     return { data: null };
                 }
             },
