@@ -13,7 +13,7 @@ export const apiSlice = createApi({
     // the cache reducer expects to be added at 'state.api' (already default - this is optional)
     reducerPath: 'api',
     baseQuery: fakeBaseQuery(),
-    tagTypes: ['Post', 'CommunitySnippet', 'Vote', 'Comment'],
+    tagTypes: ['Post', 'CommunitySnippet', 'Vote', 'Comment', 'Image'],
     endpoints: builder => ({
         fetchCommunitySnippets: builder.query({
             queryFn: async(user) => {
@@ -37,8 +37,7 @@ export const apiSlice = createApi({
                     if (!community.name) {
                         console.log('community is undefined');
                         return { data: [] };
-                    }
-                    
+                    }; 
                     const postsQuery = query(collection(firestore, 'posts'), where('communityName', '==', community.name), orderBy('createdAt', 'desc'));
                     const querySnapShot = await getDocs(postsQuery);
 
@@ -73,7 +72,7 @@ export const apiSlice = createApi({
             providesTags: ['Post']
         }),
         createPost: builder.mutation({
-            queryFn: async(post: Post, file?: string) => {
+            queryFn: async( { post, file }: { post: Post, file?: string }) => {
                 try {
                     const postRef = await addDoc(collection(firestore, 'posts'), post);
                     await updateDoc(postRef, { id: postRef.id });
@@ -154,18 +153,10 @@ export const apiSlice = createApi({
             invalidatesTags: ['Post']
         }),
         updatePost: builder.mutation({
-            queryFn: async(post) => {
+            queryFn: async(post: Post) => {
                 try {
                     const postRef = doc(firestore, 'posts', post.id!);
                     await updateDoc(postRef, { ...post });
-
-                    if (file) {
-                        console.log('file is not null');
-                        /* const imageRef = ref(storage, `posts/${post.id}/image`);
-                        await uploadString(imageRef, file, 'data_url');
-                        const imageUrl = await getDownloadURL(imageRef);
-                        await updateDoc(postRef, { imageUrl }); */
-                    }
 
                     return { data: post };
 
@@ -174,26 +165,6 @@ export const apiSlice = createApi({
                     return { data: null };
                 }
             }
-        }),
-        uploadImage: builder.mutation({
-            queryFn: async(postRef, file: string) => {
-
-                try {
-                    const imageRef = ref(storage, `posts/${postRef.id}/image`);
-                    await uploadString(imageRef, file, 'data_url'); 
-        
-                    const imageUrl = await getDownloadURL(imageRef);
-                    await updateDoc(postRef, { imageUrl })
-                    
-                    return { data: {'url': imageUrl } };
-
-
-                } catch (error: any) {
-                    console.log({ error });
-                    return { data: null };
-                }
-            },
-            invalidatesTags: ['Post']
         }),
         createComment: builder.mutation({
             queryFn: async(comment: Comment) => {
