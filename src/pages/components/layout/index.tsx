@@ -1,9 +1,5 @@
-import React, { ReactNode } from 'react'
-
+import { ReactNode } from 'react'
 import Navbar from '../navbar'
-
-
-
 
 type Props = {
     children: ReactNode
@@ -11,10 +7,10 @@ type Props = {
 
 function Layout({ children }: Props) {
   return (
-    <div className='h-full bg-gray-200'>
+    <>
         <Navbar />
         <main>{children}</main>
-    </div>
+    </>
   )
 }
 
