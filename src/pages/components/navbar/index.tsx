@@ -16,13 +16,12 @@ type Props = {
   }]; 
 }
 
-const Navbar = ({ images }: Props) => {
+const Navbar = () => {
 
-  console.log({images: images});
   const [ user, loading, error ] = useAuthState(auth); 
 
   return (
-    <div className='flex h-11 px-1 gap-1 items-center justify-between  lg:px-2 lg:py-2.5 lg:gap-2'>
+    <div className='sticky top-0 flex h-11 px-1 gap-1 items-center justify-between bg-slate-50 lg:px-2 lg:py-2.5 lg:gap-2'>
       <div className='flex items-center'>
         <div className='relative h-8 w-10'>
           <Image 
